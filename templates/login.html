@@ -1,0 +1,35 @@
+<link rel="stylesheet" href="/static/login.css" type="text/css">
+
+<form action="/login" method="POST">
+    <div class="login">
+        <div class="login-screen">
+            <div class="app-title">
+            <h1>Login</h1>
+            </div>
+            <div class="login-form">
+                <div class="control-group">
+                    <input type="text" class="login-field" value="" placeholder="Pseudo" name="username">
+                    <label class="login-field-icon fui-user" for="login-name"></label>
+                </div>
+                <div class="control-group">
+                    <input type="password" class="login-field" value="" placeholder="Mot de passe" name="password">
+                    <label class="login-field-icon fui-lock" for="login-pass"></label>
+                </div>
+            <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block">
+            </div>
+            <div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for m in messages %}
+                            {{ m }}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div>
+                <p>Vous n'avez pas de compte, <a href="http://127.0.0.1:5000/new_account">cliquez ici</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</form>
