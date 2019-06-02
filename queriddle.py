@@ -95,7 +95,6 @@ def home(anneeChoisi="3TC", matiereChoisi="TSA", sujetChoisi="DS2016_s.pdf"):
     else:
         lien = "/static/asset/" + anneeChoisi + "/" + matiereChoisi + "/" + sujetChoisi
         lien2 = "/static/asset/" + anneeChoisi + "/" + matiereChoisi + "/" + sujetChoisi[:-5] + "c.pdf"
-        print("RRRararararararaaa", lien2)
         return render_template('ressources.html', myUsername=session['username'], lien=lien, lien2=lien2, anneeCh=anneeChoisi, matiereCh= matiereChoisi, sujetCh=sujetChoisi[:-6])
 
 @app.route('/login', methods=['GET','POST'])
@@ -117,10 +116,16 @@ def do_admin_login():
         return redirect(url_for('home'))
     return render_template('login.html')
 
+@app.route('/my_account')
+def my_account():
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    query=s.query(Utilisateur).filter(Utilisateur.username == session['username'])[0]
+    return render_template('my_account.html', myUsername = query.username, myStatus = query.status, myEmail = query.email)
+
 @app.route('/create_account/<string:key>', methods=['GET','POST'])
 def create_account(key):
     if request.method == 'POST':
-
         Session = sessionmaker(bind=engine)
         s = Session()
         #Check si l'username existe déjà
@@ -219,41 +224,62 @@ def handle_my_custom_event(msg, methods=['GET', 'POST']):
     new_filename = 'static/asset/'+filename[2]+'/'+filename[3]+'/'+filename[4]+'_c.pdf'
     os.rename(msg['lien'], new_filename)
 
+@socketio.on('initChoixMat')
+def handle_event(msg, methods=['GET', 'POST']):
+    print("Hehehehehohohohoo")
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    query = s.query(Matiere.nomMat).filter(Matiere.annee == msg["annee"], Matiere.nomMat != msg['matiere'])
+    matieres = []
+    for q in query:
+        matieres.append(q[0])
+        print("Lalalalaaaaaaaaaa", q[0])
+    socketio.emit('initChoixMatBack', matieres)
+
 @socketio.on('init')
 def handle_my_custom_event(msg, methods=['GET', 'POST']):
     #if msg['user'] != session['username']:
     #    return -1
     Session = sessionmaker(bind=engine)
     s = Session()
-    query = s.query(Tchat)
+    print("LLLllllLE MESSAGE", msg)
+    if (msg['choixChat'] == 'General'):
+        print("Ici")
+        query = s.query(Tchat)
+    else:
+        query = s.query(Tchat).filter(Tchat.type == 'Matiere', msg['matiere'] == Tchat.nomMat)
     message = []
     i = 0
+    if(not(query.first())):
+        socketio.emit('efface')
     for q in query:
         i = i + 1
         scoreLike = s.query(Like).filter(Like.idMessage == q.id).count()
         scoreDislike = s.query(Dislike).filter(Dislike.idMessage == q.id).count()
         if(i == 1):
-            message = { "id": q.id, "username": q.username, "message": q.contenu, 'reference': q.refere, "scoreLike": scoreLike, "scoreDislike": scoreDislike, "init": "yes" }
+            message = { "matiere": q.nomMat, "id": q.id, "username": q.username, "message": q.contenu, 'reference': q.refere, "scoreLike": scoreLike, "scoreDislike": scoreDislike, "init": "yes" }
         else:
-            message = { "id": q.id, "username": q.username, "message": q.contenu, 'reference': q.refere, "scoreLike": scoreLike, "scoreDislike": scoreDislike, "init": "no" }
+            message = { "matiere": q.nomMat, "id": q.id, "username": q.username, "message": q.contenu, 'reference': q.refere, "scoreLike": scoreLike, "scoreDislike": scoreDislike, "init": "no" }
         socketio.emit('messageReception', message, callback=messageReceived)
 
 @socketio.on('messageEmission')
 def handle_my_custom_event(msg, methods=['GET', 'POST']):
     Session = sessionmaker(bind=engine)
     s = Session()
-    new_message=Tchat(username = msg['username'],refere = msg['reference'],contenu = msg["message"],idFichier = 0)
+    print("LLLllLE MESSAGE", msg)
+    new_message=Tchat(username = msg['username'], nomMat = msg['matiere'], refere = msg['reference'],contenu = msg["message"],idFichier = 0, type = msg['choixChat'])
     s.add(new_message)
     s.commit()
     query = s.query(func.max(Tchat.id)).first()
     updated_msg = {
         'id' : str(query[0]),
+        'matiere' : msg['matiere'],
         'message': msg['message'],
         'username': msg['username'],
         'reference': msg['reference'],
         'scoreLike': 0,
         'scoreDislike': 0,
-        'init': "no"
+        'init': "no",
     }
     socketio.emit('messageReception', updated_msg, callback=messageReceived)
     print('Message reçu: ' + str(updated_msg))
@@ -264,7 +290,6 @@ def handle_my_custom(msg, methods=['GET', 'POST']):
     s = Session()
     redundancy = s.query(Like).filter(Like.idMessage == msg['id'], Like.username == msg['username']).first()
     if redundancy:
-        print("Redondance !")
         return -1
     if(s.query(Dislike).filter(Dislike.idMessage == msg['id'], Dislike.username == msg['username']).delete()):
         scoreDislike = s.query(Dislike).filter(Dislike.idMessage == msg['id']).count()
@@ -289,7 +314,6 @@ def handle_my_custom(msg, methods=['GET', 'POST']):
     s = Session()
     redundancy = s.query(Dislike).filter(Dislike.idMessage == msg['id'], Dislike.username == msg['username']).first()
     if redundancy:
-        print("Redondance !")
         return -1
     if (s.query(Like).filter(Like.idMessage == msg['id'], Like.username == msg['username']).delete()):
         scoreLike = s.query(Like).filter(Like.idMessage == msg['id']).count()
