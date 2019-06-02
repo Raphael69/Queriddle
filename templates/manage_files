@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queriddle</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/manage_files.css" type="text/css">
+    <link rel="stylesheet" href="/static/ressources.css" type="text/css">
+</head>
+<body>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        $(document).ready(function() {
+
+            socket.on( 'connect', function() {
+
+                socket.emit( 'init_manage_files', {
+                    user : '{{ myUsername }}'
+                })
+            })
+
+            socket.on( 'les_annees', function(msg) {
+                $('div.main').empty()
+                $('div.main').append('<p>' + msg.annee + '</p><div id="annees" class="'+msg.annee+'"></div>')
+                 for (var j = 0; j < msg.matieres.length; j++) {
+                     $('div.'+msg.annee+'').append('<p>' + msg.matieres[j] + '</p><div id="matieres" class="'+msg.matieres[j]+'">Aucun nouveau corrigé proposé</div>');
+                     socket.emit( 'init_manage_files2', {
+                         annee: msg.annee,
+                        matiere: msg.matieres[j]
+                     })
+                 }
+            })
+
+            socket.on( 'les_annees2', function(msg) {
+                console.log(msg)
+                $('div.'+msg.matiere).empty()
+                $('div.'+msg.matiere+'').append('<div id="sujets"><p>' + msg.sujet + '</p><div id="propositions" class="'+msg.sujet+msg.matiere+'"></div></div>')
+                 for (var j = 0; j < msg.propositions.length; j++) {
+                     let lien = '/static/upload/'+msg.annee+'/'+msg.matiere+'/'+msg.sujet+'/'+msg.propositions[j]
+                     console.log(lien)
+                     $('div.'+msg.sujet+msg.matiere+'').append('<p><a href="'+lien+'" target="_blank"'+'>Corrigé proposé par : ' + msg.propositions[j].substring(0,msg.propositions[j].length-4) + '</a></p>' +
+                         '<form action="" method="POST" class="rejection" id="'+lien+String(j)+'"><input type="submit" class="rejeter" value="Rejeter"></form>' +
+                         '<form action="" method="POST" class="acceptation" id="'+lien+String(j)+'"><input type="submit" class="rejeter" value="Accepter"></form>' +
+                         '<div class="'+msg.propositions[j]+'"></div>');
+                 }
+            })
+
+            $('body').on('submit', 'form.rejection',function(e){
+                e.preventDefault()
+                let lien = $(this).attr('id').substring(1,$(this).attr('id').length-1)
+                socket.emit('manage_file_suppression', {
+                    lien: lien
+                })
+            })
+
+            $('body').on('submit', 'form.acceptation',function(e){
+                e.preventDefault()
+                let lien = $(this).attr('id').substring(1,$(this).attr('id').length-1)
+                socket.emit('manage_file_suppression', {
+                    lien: lien
+                })
+            })
+        })
+    </script>
+    <div id="entete">
+        <img src="/static/logo.png">
+        <div id="statut">
+            <p id="username">{{ myUsername }} - <a href='/login'>Mon compte</a> - <a href='/logout'>logout</a></p>
+        </div>
+    </div>
+
+    <div class="main">
+    </div>
+</body>
+</html>
