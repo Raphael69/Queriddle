@@ -1,0 +1,18 @@
+#matieres {
+    border-radius: 5px;
+    border: 2px solid blue;
+    margin: 5px;
+    width: 300px;
+}
+
+#sujets {
+    border-radius: 5px;
+    border: 2px solid green;
+    margin: 5px;
+}
+
+#propositions {
+    border-radius: 5px;
+    border: 2px solid yellow;
+    margin: 5px;
+}
