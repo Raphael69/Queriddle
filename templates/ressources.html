@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queriddle</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/res.css" type="text/css">
+</head>
+<body>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        $(document).ready(function() {
+
+            var x = document.getElementById('chatBis');
+            x.scrollTop = x.scrollHeight;
+
+            $('#an').change(function() {
+                var selAnnee = $('#an option:selected').text();
+                $('#mat').empty();
+                socket.emit( 'changeMat', {
+                    annee : selAnnee
+                } )
+            })
+
+            socket.on('effChangeMat', function( msg ) {
+                for (var i = 0 ; i < msg.length ; i++) {
+                    $('#mat').append('<option value="">'+msg[i]+'</option>');
+                }
+                }
+            )
+
+            $('#mat').change(function() {
+                var selMatiere = $('#mat option:selected').text();
+                $('#fic').empty();
+                socket.emit( 'changeFic', {
+                    matiere : selMatiere
+                } )
+            })
+
+            socket.on('effChangeFic', function( msg ) {
+                for (var i = 0 ; i < msg.length ; i++) {
+                    $('#fic').append('<option value="">'+msg[i]+'</option>');
+                }
+                }
+            )
+
+            $('#bouton').on('click', function(){
+                    var selAnnee = $('#an option:selected').text();
+                    var selMat = $('#mat option:selected').text();
+                    var selFic = $('#fic option:selected').text();
+                    window.location = 'http://127.0.0.1:5000/'+selAnnee+'/'+selMat+'/'+selFic;
+                })
+        })
+    </script>
+
+    <script>
+     var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+     $(document).ready(function() {
+
+         window.sessionStorage['username'] = '{{ myUsername }}'
+         window.sessionStorage['choixChat'] = 'Matiere'
+         window.sessionStorage['choixMat'] = '{{ matiereCh }}'
+
+         socket.on( 'connect', function() {
+
+             socket.emit( 'init', {
+                 user : '{{ myUsername }}',
+                 choixChat : window.sessionStorage['choixChat'],
+                 matiere : '{{ matiereCh }}'
+             })
+
+             var selAnnee = $('#an option:selected').text();
+             socket.emit( 'initChoixMat', {
+                 annee : '{{ anneeCh }}',
+                 matiere : '{{ matiereCh }}'
+             })
+
+             socket.on('initChoixMatBack', function( msg ) {
+                 $('#matChat').empty();
+                 $('#matChat').append('<option value="" selected>'+'{{ matiereCh }}'+'</option>');
+                 $('#matChat').append('<option value="">'+'General'+'</option>');
+                for (var i = 0 ; i < msg.length ; i++) {
+                    $('#matChat').append('<option value="">'+msg[i]+'</option>');
+                }
+                })
+
+             $('#matChat').change('click', function(e) {
+                 var sel = $('#matChat option:selected').text()
+                 if (sel == 'General')
+                 {
+                     window.sessionStorage['choixChat'] = 'General'
+                     socket.emit( 'init', {
+                         user : '{{ myUsername }}',
+                         choixChat : window.sessionStorage['choixChat']
+                     })
+                 }
+                 else
+                 {
+                     window.sessionStorage['choixChat'] = 'Matiere'
+                     window.sessionStorage['choixMat'] = $('#matChat option:selected').text()
+                     socket.emit( 'init', {
+                         user : '{{ myUsername }}',
+                         choixChat : window.sessionStorage['choixChat'],
+                         matiere : $('#matChat option:selected').text()
+                     })
+                 }
+             })
+
+             $( 'form.message' ).on( 'submit', function( e ) {
+                 e.preventDefault()
+                 let username = '{{ myUsername }}'
+                 let matiere = window.sessionStorage['choixMat']
+                 let userinput = $( 'input.message' ).val()
+                 let choixChat = window.sessionStorage['choixChat']
+                 let idElt = $('p.reference').attr('id')
+                 if (idElt === undefined)
+                 {
+                     socket.emit( 'messageEmission', {
+                         username : username,
+                         matiere : matiere,
+                         message : userinput,
+                         reference : 0,
+                         choixChat : choixChat
+                    })
+                 }
+                 else
+                 {
+                     idElt = idElt.substring(1,idElt.length);
+                     $( 'div.reference' ).empty()
+                    socket.emit( 'messageEmission', {
+                         username : username,
+                         matiere : matiere,
+                         message : userinput,
+                         reference : idElt,
+                         choixChat : choixChat
+                    })
+                 }
+                $( 'input.message' ).val( '' ).focus()
+            })
+
+             $( 'div.message_holder' ).on( 'submit', 'form.like',function( e ) {
+                e.preventDefault()
+                let idElt = $(this).attr('id')
+                 idElt = idElt.substring(1,idElt.length);
+                socket.emit( 'likeEmission', {
+                    id : idElt,
+                    username : '{{ myUsername }}'
+                })
+            })
+
+             $( 'div.message_holder' ).on( 'submit', 'form.dislike',function( e ) {
+                e.preventDefault()
+                let idElt = $(this).attr('id')
+                 idElt = idElt.substring(1,idElt.length);
+                socket.emit( 'dislikeEmission', {
+                    id : idElt,
+                    username : '{{ myUsername }}'
+                })
+            })
+
+            $( 'div.message_holder' ).on( 'submit', 'form.repondre',function( e ) {
+                e.preventDefault()
+                $( 'div.reference' ).empty()
+                let idElt = $(this).attr('id')
+                 idElt = idElt.substring(1,idElt.length);
+                var ref = 'm'+idElt
+                var ref = document.getElementById(ref).textContent
+                $( 'div.reference' ).append(
+                    '<p class="reference" id="r'+idElt+'">Répondre à : "'+ref+'"</p>'
+                )
+            })
+
+        })
+
+         socket.on( 'efface', function( msg ) {
+             $('div.message_holder').empty()
+         })
+
+         socket.on( 'messageReception', function( msg ) {
+             console.log(window.sessionStorage['choixChat'], window.sessionStorage['choixMat'])
+             if(window.sessionStorage['choixChat'] === 'General' || msg.matiere === window.sessionStorage['choixMat']) {
+                 if(msg.init === "yes")
+                     $('div.message_holder').empty()
+                 if (msg.username === '{{ myUsername }}') {
+                     $('div.message_holder').append('<div class="mesMessages"><div class="ref" id="z' + msg.id + '"><p class="msgReference" id="c' + msg.id + '"></p></div><div class="contenue"><b style="color: #000">' +
+                         msg.username + '</b><form class="repondre" id="r' + msg.id + '"><input type="submit" value="Répondre"></form><br><p class="msgPrincipale" id="m' + msg.id + '">' + msg.message +
+                         '</p></div> <div class="like"><form action="" method="POST" class="like" id="l' + msg.id + '">' +
+                         '<input type=image src=/static/like.jpg style="height: 20px" alt="Like">' + '<p class="like">' + msg.scoreLike + '</p>' + '</form>' +
+                         '<form action="" method="POST"  class="dislike" id="d' + msg.id + '">' +
+                         '<input type=image src=/static/dislike.jpg style="height: 20px" alt="<Dislike></Dislike>">' + '<p class="dislike">' + msg.scoreDislike + '</p>' +
+                         '</form>' + '</div></div>')
+                 } else if (typeof msg.username !== 'undefined') {
+                     $('div.message_holder').append('<div class="autresMessages"><div class="ref" id="z' + msg.id + '"><p class="msgReference" id="c' + msg.id + '"></p></div><div class="contenue"><b style="color: #000">' +
+                         msg.username + '</b><form class="repondre" id="r' + msg.id + '"><input type="submit" value="Répondre"></form><br><p class="msgPrincipale" id="m' + msg.id + '">' + msg.message +
+                         '</p></div> <div class="like"><form action="" method="POST" class="like" id="l' + msg.id + '">' +
+                         '<input type=image src=/static/like.jpg style="height: 20px" alt="Like">' + '<p class="like">' + msg.scoreLike + '</p>' + '</form>' +
+                         '<form action="" method="POST"  class="dislike" id="d' + msg.id + '">' +
+                         '<input type=image src=/static/dislike.jpg style="height: 20px" alt="<Dislike></Dislike>">' + '<p class="dislike">' + msg.scoreDislike + '</p>' +
+                         '</form>' + '</div></div>')
+                 }
+                 if (msg.reference !== 0) {
+                     var ref = 'm' + msg.reference
+                     var ajout = 'c' + msg.id
+                     console.log(ref)
+                     var ref = document.getElementById(ref).textContent
+                     document.getElementById(ajout).textContent = 'En réponse à : "' + ref + '"'
+                 } else {
+                     var ajout = 'z' + msg.id
+                     document.getElementById(ajout).remove()
+                 }
+                 var x = document.getElementById('chatBis');
+                 x.scrollTop = x.scrollHeight;
+             }
+         })
+
+         socket.on( 'likeReception', function( msg ) {
+             var id = "l" + msg.id
+             document.getElementById(id).querySelector('p.like').textContent = msg.scoreLike
+         })
+
+         socket.on( 'dislikeReception', function( msg ) {
+             var id = "d" + msg.id
+             document.getElementById(id).querySelector('p.dislike').textContent = msg.scoreDislike
+         })
+
+     })
+
+   </script>
+
+    <div id="entete">
+        <img src="/static/logo.png">
+        <div id="choix">
+            <select id="an">
+                <option value="" selected disabled hidden>Annee</option>
+                <option value="">3TC</option>
+                <option value="">4TC</option>
+                <option value="">5TC</option>
+            </select>
+            <select id="mat">
+                <option value="" selected disabled hidden>Matiere</option>
+            </select>
+            <select id="fic">
+                <option value="" selected disabled hidden>Fichier</option>
+            </select>
+            <br>
+            <input type="submit" id="bouton" value="Valider"/>
+        </div>
+        <div id="statut">
+            <p id="username">{{ myUsername }} - <a href='/my_account'>Mon compte</a> - <a href='/logout'>logout</a></p>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div id="main">
+        <div id="monPdf">
+            <div id="monPdf1">
+                <p id="annonceSujet" >Sujet {{ matiereCh }} {{ sujetCh }}</p>
+                <embed src="{{ lien }}" width="100%" height="500">
+            </div>
+            <br>
+            <div id="monPdf2">
+                <p id="annonceSujet" >Corrigé {{ matiereCh }} {{ sujetCh }}</p>
+                <embed src="{{ lien2 }}" width="100%" height="500">
+            </div>
+            <br>
+            <div id="upload">
+                <p id="annonceUpload">Proposer un corrigé</p>
+                <form action="/upload/{{ anneeCh }}/{{ matiereCh }}/{{ sujetCh }}/{{ myUsername }}" method="POST" enctype="multipart/form-data">
+                        <div class="tooltip"><input type="file" name="file">
+                            <span class="tooltiptext">
+                        <p>Pour que votre fichier soit accepté, il doit respecter la règle des 3F :</p>
+                        <ul>
+                            <li>Fond : le fichier ne doit être présentable et lisible </li>
+                            <li>Forme : le contenu doit être le plus correct possible</li>
+                            <li>Fromat : seul les fichiers en format pdf sont acceptés</li>
+                        </ul>
+                    </span>
+                </div>
+                        <input type="submit" value="Envoyer">
+                    </form>
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for m in messages %}
+                                {{ m }}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+            </div>
+            <br><br>
+        </div>
+        <div id="chat">
+            <select id="matChat">
+                    <option value="" selected>{{ matiereCh }}</option>
+                    <option value="">General</option>
+                </select>
+            <div id="annonceChat">
+                <p id="motChat" >Chat</p>
+            </div>
+            <div id="chatBis" class="message_holder">
+            </div>
+            <div class="reference"></div>
+                <form action="" method="POST" class="message">
+                    <input type="text" id="saisiMessage" class="message" placeholder="..."/>
+                    <input type="submit" id="envoie" value="Envoyer"/>
+                </form>
+        </div>
+    </div>
+
+</body>
+</html>
