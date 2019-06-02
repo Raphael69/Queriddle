@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queriddle</title>
+</head>
+<body>
+    <h1>Mon compte</h1>
+    <p>Pseudo : {{ myUsername }}</p>
+    <p>Email : {{ myEmail }}</p>
+    <p>Status : {{ myStatus }}</p>
+</body>
+</html>
