@@ -1,0 +1,31 @@
+<link rel="stylesheet" href="/static/create_account.css" type="text/css">
+
+<form action="/create_account/{{ key }}" method="POST">
+    <div class="login">
+        <div class="login-screen">
+            <div class="app-title">
+            <h1>Saisissez un pseudo et un mot de passe : </h1>
+            </div>
+            <div class="login-form">
+                <div class="control-group">
+                    <input type="text" class="login-field" value="" placeholder="Pseudo" name="username">
+                    <label class="login-field-icon fui-user" for="login-name"></label>
+                </div>
+                <div class="control-group">
+                    <input type="password" class="login-field" value="" placeholder="Mot de passe" name="password">
+                    <label class="login-field-icon fui-lock" for="login-pass"></label>
+                </div>
+            <input type="submit" value="Créer compte" class="btn btn-primary btn-large btn-block">
+            </div>
+            <div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for m in messages %}
+                            {{ m }}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</form>
