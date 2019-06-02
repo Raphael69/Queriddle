@@ -1,0 +1,256 @@
+body {
+  background-color: white;
+}
+#entete {
+  margin-left: -15px;
+  margin-right: -15px;
+  margin-top: -8px;
+  height: 70px;
+  background-color: #4169E1;
+  text-align:center;
+}
+#main {
+   margin: 0px;
+}
+
+#monPdf {
+  left: 10px;
+  position: absolute;
+    right: 600px;
+}
+
+#chat {
+  position: fixed;
+  background-color: #4169E1;
+  border: 3px solid #4169E1;
+  border-radius: 5px;
+  bottom: 10px;
+  right: 10px;
+  width: 270px;
+  min-height:150px;
+}
+
+#monPdf1 {
+  font-size: 1.1em;
+  color: white;
+  background-color: #4169E1;
+  border: 3px solid #4169E1;
+  border-radius: 5px;
+}
+
+#monPdf2 {
+  font-size: 1.1em;
+  color: white;
+  background-color: #4169E1;
+  border: 3px solid #4169E1;
+  border-radius: 5px;
+}
+#upload {
+  color: white;
+  width: 300px;
+  background-color: #4169E1;
+  border: 3px solid #4169E1;
+  border-radius: 5px;
+}
+
+.message_holder {
+    font-size: 0.85em;
+    background-color: white;
+    max-height: 300px;
+    margin-left: 0px;
+    margin-right: 0px;
+    overflow: scroll;
+}
+
+.autresMessages {
+  font: 0.95em "Fira Sans",sans-serif;
+  line-height: 100%;
+  border: 2px solid #B6BCC2;
+  background-color: #B6BCC2;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px;
+  overflow-y: auto;
+}
+
+.mesMessages {
+  font: 0.95em "Fira Sans",sans-serif;
+  line-height: 100%;
+  border: 2px solid #1E90FF;
+  background-color: #1E90FF;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px;
+  overflow-y: auto;
+}
+
+#saisiMessage {
+  font: 0.95em "Fira Sans",sans-serif;
+  line-height: 100%;
+  margin: 10px;
+  margin-right: 5px;
+  border: 2px solid #B6BCC2;
+  width: 140px;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+#envoie {
+  font: 0.95em "Fira Sans",sans-serif;
+  line-height: 100%;
+  background-color: #0C8793;
+  border-radius: 5px;
+  padding: 10px;
+ }
+
+#choix {
+  position: absolute;
+  height: 56px;
+  width: 300px;
+  margin-top: 7px;
+  margin-left: 470px;
+}
+
+#username {
+  font-size: 1.15em;
+  color: white;
+}
+
+img {
+  float: left;
+  margin-left: 50px;
+  margin-top: 5px;
+  height: 50px;
+  width: 188px;
+}
+
+select {
+  margin-top: 0px;
+}
+
+#bouton {
+  font: 0.9em "Fira Sans",sans-serif;
+  line-height: 70%;
+  border: 2px solid #4169E1;
+  background-color: #14C0E3;
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+ }
+
+#statut {
+  margin-left: 950px;
+  margin-top: 0px;
+  height: 40px;
+  width: 300px;
+  border: 2px solid #4169E1;
+}
+
+#annonceSujet {
+  margin-left: 300px;
+}
+
+#annonceUpload {
+  margin-left: 95px;
+}
+
+img {
+  float: left;
+  margin-left: 50px;
+  height: 60px;
+  width: 180px;
+}
+
+select {
+  margin-top: 0px;
+}
+
+#annonceChat {
+  margin-top: -18px;
+  height: 30px;
+  background-color: #4169E1;
+}
+
+#motChat {
+  font-size: 1.1em;
+  color: white;
+  padding: 6px;
+  margin-left: 110px;
+}
+
+.contenue {
+  float: left;
+}
+
+div.like {
+  height: 40px;
+}
+
+p.like {
+  margin-left: -50px;
+  float: right;
+  margin-top: 5px;
+}
+
+p.dislike {
+  float: right;
+  margin-top: 5px;
+}
+
+form.repondre {
+  margin-top: -23px;
+  margin-left: 70px;
+}
+
+p.reference {
+  border-radius: 1px;
+  margin-bottom: -8px;
+  margin-left: 15px;
+  width: 280px;
+  background-color: #14C0E3;
+}
+
+.msgPrincipale {
+  width: 200px;
+  margin-top: 3px;
+  margin-bottom: 5px;
+  overflow-x: hidden;
+}
+
+.ref {
+  padding-left: 5px;
+  border-radius: 3px;
+  background-color: steelblue;
+  margin-bottom: 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 450px;
+  height: 110px;
+  background-color: #555;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  bottom: -200%;
+  left: 140%;
+}
+
+.tooltip {
+  position: relative;
+  display: inline;
+  border-bottom: 1px dotted black;
+}
+
+.image-info {
+  width: 20px;
+  height: 19px;
+}
