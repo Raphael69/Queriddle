@@ -51,18 +51,21 @@ class Tchat(Base):
     score = Column(Integer)
     refere = Column(Integer)
     date = Column(DateTime, default=datetime.datetime.utcnow)
+    type = Column(String)
     username = Column(Integer, ForeignKey("utilisateurs.username"))
     nomMat = Column(String, ForeignKey("matieres.nomMat"))
 
     user_rel = relationship("Utilisateur", foreign_keys=[username])
     mat_rel = relationship("Matiere", foreign_keys=[nomMat])
 
-    def __init__(self, contenu, refere, username, idFichier, score=0):
+    def __init__(self, contenu, refere, username, idFichier, nomMat, type, score=0):
         self.contenu = contenu
         self.score = score
         self.refere = refere
         self.username = username
         self.idFichier = idFichier
+        self.nomMat = nomMat
+        self.type = type
 
 
 class Fichier(Base):
