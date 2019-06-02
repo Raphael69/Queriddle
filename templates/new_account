@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="/static/create_account.css" type="text/css">
+
+<form action="/new_account" method="POST">
+    <div class="login">
+        <div class="login-screen">
+            <div class="app-title">
+            <h1>Saisissez votre adresse mail : </h1>
+            </div>
+            <div class="login-form">
+                <div class="control-group">
+                    <input type="text" class="login-field" value="" placeholder="adresse mail" name="email">
+                    <label class="login-field-icon fui-user" for="login-name"></label>
+                </div>
+            <input type="submit" value="Valider" class="btn btn-primary btn-large btn-block">
+            </div>
+            <div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for m in messages %}
+                            {{ m }}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</form>
